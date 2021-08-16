@@ -2,3 +2,4 @@
 !package/kernel/mt76/src/mt7915
 !.config
 !.gitignore
+!README.md
