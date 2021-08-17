@@ -8,6 +8,7 @@
 #include "mt7915.h"
 #include "mcu.h"
 
+// defined by Yao-Wen Liu
 #define MAX_CLIENTS 5
 struct station_table{
 	unsigned long success[10][2][2];
@@ -16,11 +17,6 @@ struct station_table{
 };
 struct station_table stations[MAX_CLIENTS];
 u8 sta_addr[MAX_CLIENTS][ETH_ALEN];
-// [MCS index][NSS][Guard interval]
-/*
-unsigned long success[10][2][2];
-unsigned long attempt[10][2][2];
-*/
 bool initialized = false;
 
 static bool mt7915_dev_running(struct mt7915_dev *dev)
