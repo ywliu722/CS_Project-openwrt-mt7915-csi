@@ -11,6 +11,7 @@
 // defined by Yao-Wen Liu
 #define MAX_CLIENTS 5
 struct station_table{
+	// [MCS][NSS][GI]
 	unsigned long success[10][2][2];
 	unsigned long attempt[10][2][2];
 	bool initialized;
