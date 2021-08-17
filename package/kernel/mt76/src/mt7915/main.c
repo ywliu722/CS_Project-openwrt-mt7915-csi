@@ -16,7 +16,6 @@ struct station_table{
 };
 struct station_table stations[MAX_CLIENTS];
 u8 sta_addr[MAX_CLIENTS][ETH_ALEN];
-bool isModifying = false;
 // [MCS index][NSS][Guard interval]
 /*
 unsigned long success[10][2][2];
@@ -993,18 +992,18 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 		"BW20", "BW5", "BW10", "BW40",
 		"BW80", "BW160", "BW_HE_RU"
 	};
-	/*
-	if (!initialized){
-		memset(attempt, 0, sizeof(attempt));
-		memset(success, 0, sizeof(success));
-		initialized = true;
-	}*/
-	int count = 0;
-	while(isModifying){
-		count ++;
-	}
-	isModifying = true;
+	
+	// defined by Yao-Wen Liu
+	u8 current_sta_addr[ETH_ALEN];
 	unsigned long index = 0;
+	unsigned long short_guard = 0;
+	unsigned long current_attempt;
+	unsigned long current_success;
+	unsigned long current_ppdu;
+
+	memcpy(current_sta_addr, sta->addr, ETH_ALEN);	// copy station MAC address
+
+	// initialize global variables
 	if(!initialized){
 		memset(sta_addr, 0, sizeof(sta_addr));
 		for (index = 0; index < MAX_CLIENTS ; index ++){
@@ -1012,22 +1011,20 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 		}
 		initialized = true;
 	}
-	u8 current_sta_addr[ETH_ALEN];
-	memcpy(current_sta_addr, sta->addr, ETH_ALEN);
 	
+	// find station index or add it to the array
 	for (index = 0; index < MAX_CLIENTS ; index ++){
-		if (current_sta_addr[index] == sta_addr[index][ETH_ALEN] || !stations[index].initialized){
+		if (current_sta_addr[0] == sta_addr[index][0] || !stations[index].initialized){
+			if (!stations[index].initialized){
+				memcpy(sta_addr[index], sta->addr, ETH_ALEN);
+				memset(stations[index].attempt, 0, sizeof(stations[index].attempt));
+				memset(stations[index].success, 0, sizeof(stations[index].success));
+				stations[index].initialized = true;
+			}
 			break;
 		}
 	}
-	if (!stations[index].initialized){
-		memcpy(sta_addr[index], sta->addr, ETH_ALEN);
-		memset(stations[index].attempt, 0, sizeof(stations[index].attempt));
-		memset(stations[index].success, 0, sizeof(stations[index].success));
-		stations[index].initialized = true;
-	}
-	isModifying = false;
-	int short_guard = 0;
+	
 	if (!rate->legacy && !rate->flags)
 		return 0;
 
@@ -1058,11 +1055,13 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 		if (rate->he_dcm)
 			seq_puts(s, "DCM ");
 	}
+
+	// add current data to the table
 	stations[index].attempt[rate->mcs][rate->nss][short_guard] = stations[index].attempt[rate->mcs][rate->nss][short_guard] + stats->attempts;
 	stations[index].success[rate->mcs][rate->nss][short_guard] = stations[index].success[rate->mcs][rate->nss][short_guard] + stats->success;
-	unsigned long current_attempt = stations[index].attempt[rate->mcs][rate->nss][short_guard];
-	unsigned long current_success = stations[index].success[rate->mcs][rate->nss][short_guard];
-	unsigned long current_ppdu = 1000 * (current_attempt - current_success) / current_attempt;
+	current_attempt = stations[index].attempt[rate->mcs][rate->nss][short_guard];
+	current_success = stations[index].success[rate->mcs][rate->nss][short_guard];
+	current_ppdu = 1000 * (current_attempt - current_success) / current_attempt;
 
 	seq_printf(s, "\nPPDU PER: %ld.%1ld%%\n", current_ppdu / 10, current_ppdu % 10);
 	seq_printf(s, "\nAccumulated Attempts: %ld",stations[index].attempt[rate->mcs][rate->nss][short_guard]);
@@ -1080,10 +1079,9 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	seq_printf(s, "Airtime 5: %u\n",msta->airtime_ac[5]);
 	seq_printf(s, "Airtime 6: %u\n",msta->airtime_ac[6]);
 	seq_printf(s, "Airtime 7: %u\n",msta->airtime_ac[7]);
-	seq_printf(s, "Current index: %d\n",index);
+	seq_printf(s, "Current index: %ld\n",index);
 	seq_printf(s, "MAC address: %02X:%02X:%02X:%02X:%02X:%02X\n", 
 			   current_sta_addr[0], current_sta_addr[1], current_sta_addr[2], current_sta_addr[3], current_sta_addr[4], current_sta_addr[5]);
-	seq_printf(s, "Waiting count: %d\n",count);
 	return 0;
 }
 
