@@ -73,6 +73,9 @@ struct mt7915_sta_stats {
 	unsigned long success;
 	unsigned long changed;
 	unsigned long jiffies;
+	unsigned int len;
+	unsigned int struct_size;
+	unsigned short tmp;
 };
 
 struct mt7915_sta_key_conf {
