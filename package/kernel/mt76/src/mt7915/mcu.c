@@ -474,6 +474,8 @@ mt7915_mcu_tx_rate_report(struct mt7915_dev *dev, struct sk_buff *skb)
 	struct mt7915_sta *msta;
 	struct mt76_wcid *wcid;
 
+	s64 timestamp = ktime_to_ms(skb->tstamp);
+
 	if (wcidx >= MT76_N_WCIDS)
 		return;
 
@@ -504,6 +506,7 @@ mt7915_mcu_tx_rate_report(struct mt7915_dev *dev, struct sk_buff *skb)
 		stats->len = skb->len;
 		stats->struct_size = sizeof(struct mt7915_mcu_ra_info);
 		stats->tmp = tmp;
+		stats->timestamp = timestamp;
 	}
 }
 

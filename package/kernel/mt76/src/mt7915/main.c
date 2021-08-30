@@ -1071,6 +1071,7 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	seq_printf(s, "Len: %u\n",stats->len);
 	seq_printf(s, "Size of structure: %u\n",stats->struct_size);
 	seq_printf(s, "Tmp: %hu\n",stats->tmp);
+	seq_printf(s, "Timestamp: %lld\n", stats->timestamp);
 	seq_printf(s, "Airtime 0: %u\n",msta->airtime_ac[0]);
 	seq_printf(s, "Airtime 1: %u\n",msta->airtime_ac[1]);
 	seq_printf(s, "Airtime 2: %u\n",msta->airtime_ac[2]);
