@@ -1805,7 +1805,7 @@ void mt7915_mac_work(struct work_struct *work)
 		mt7915_mac_update_mib_stats(phy);
 	}
 
-	if (++phy->sta_work_count == 10) {
+	if (++phy->sta_work_count == 1) {
 		phy->sta_work_count = 0;
 		mt7915_mac_sta_stats_work(phy);
 	}

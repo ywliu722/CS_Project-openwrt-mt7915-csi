@@ -76,7 +76,9 @@ struct mt7915_sta_stats {
 	unsigned int len;
 	unsigned int struct_size;
 	unsigned short tmp;
-	s64 timestamp;
+	s64 sec;
+	long nsec;
+	u8 ppdu_cnt;
 };
 
 struct mt7915_sta_key_conf {

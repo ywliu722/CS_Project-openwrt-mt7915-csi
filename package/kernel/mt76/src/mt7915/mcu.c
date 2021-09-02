@@ -3,6 +3,7 @@
 
 #include <linux/firmware.h>
 #include <linux/fs.h>
+#include <linux/timekeeping.h>
 #include "mt7915.h"
 #include "mcu.h"
 #include "mac.h"
@@ -474,7 +475,10 @@ mt7915_mcu_tx_rate_report(struct mt7915_dev *dev, struct sk_buff *skb)
 	struct mt7915_sta *msta;
 	struct mt76_wcid *wcid;
 
-	s64 timestamp = ktime_to_ms(skb->tstamp);
+	struct timespec64 tv;
+	ktime_get_ts64(&tv);
+	s64 sec = tv.tv_sec;
+	long nsec = tv.tv_nsec;
 
 	if (wcidx >= MT76_N_WCIDS)
 		return;
@@ -506,7 +510,9 @@ mt7915_mcu_tx_rate_report(struct mt7915_dev *dev, struct sk_buff *skb)
 		stats->len = skb->len;
 		stats->struct_size = sizeof(struct mt7915_mcu_ra_info);
 		stats->tmp = tmp;
-		stats->timestamp = timestamp;
+		stats->sec = sec;
+		stats->nsec = nsec;
+		stats->ppdu_cnt = ra->ppdu_cnt;
 	}
 }
 

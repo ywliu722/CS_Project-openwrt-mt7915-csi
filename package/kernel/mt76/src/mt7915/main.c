@@ -19,6 +19,8 @@ struct station_table{
 struct station_table stations[MAX_CLIENTS];
 u8 sta_addr[MAX_CLIENTS][ETH_ALEN];
 bool initialized = false;
+s64 previous_sec = 0;
+long previous_nsec = 0;
 
 static bool mt7915_dev_running(struct mt7915_dev *dev)
 {
@@ -997,6 +999,7 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	unsigned long current_attempt;
 	unsigned long current_success;
 	unsigned long current_ppdu;
+	long long int msec;
 
 	memcpy(current_sta_addr, sta->addr, ETH_ALEN);	// copy station MAC address
 
@@ -1008,7 +1011,13 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 		}
 		initialized = true;
 	}
-	
+
+	// check if this is the first report
+	if(previous_sec == 0 && previous_nsec == 0){
+		previous_sec = stats->sec;
+		previous_nsec = stats->nsec;
+	}
+
 	// find station index or add it to the array
 	for (index = 0; index < MAX_CLIENTS ; index ++){
 		if (current_sta_addr[0] == sta_addr[index][0] || !stations[index].initialized){
@@ -1052,14 +1061,21 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 		if (rate->he_dcm)
 			seq_puts(s, "DCM ");
 	}
-
+	
 	// add current data to the table
-	stations[index].attempt[rate->mcs][rate->nss][short_guard] = stations[index].attempt[rate->mcs][rate->nss][short_guard] + stats->attempts;
-	stations[index].success[rate->mcs][rate->nss][short_guard] = stations[index].success[rate->mcs][rate->nss][short_guard] + stats->success;
+	if(previous_sec != stats->sec && previous_nsec != stats->nsec){
+		stations[index].attempt[rate->mcs][rate->nss][short_guard] = stations[index].attempt[rate->mcs][rate->nss][short_guard] + stats->attempts;
+		stations[index].success[rate->mcs][rate->nss][short_guard] = stations[index].success[rate->mcs][rate->nss][short_guard] + stats->success;
+
+		previous_sec = stats->sec;
+		previous_nsec = stats->nsec;
+	}
+
 	current_attempt = stations[index].attempt[rate->mcs][rate->nss][short_guard];
 	current_success = stations[index].success[rate->mcs][rate->nss][short_guard];
 	current_ppdu = 1000 * (current_attempt - current_success) / current_attempt;
-
+	msec = (stats->sec * 1000) + (stats->nsec / 1000000);
+	
 	seq_printf(s, "\nPPDU PER: %ld.%1ld%%\n", current_ppdu / 10, current_ppdu % 10);
 	seq_printf(s, "\nAccumulated Attempts: %ld",stations[index].attempt[rate->mcs][rate->nss][short_guard]);
 	seq_printf(s, "\nAccumulated Success: %ld\n",stations[index].success[rate->mcs][rate->nss][short_guard]);
@@ -1068,11 +1084,12 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 		   stats->per / 10, stats->per % 10);
 	seq_printf(s, "Attempts: %ld\n",stats->attempts);
 	seq_printf(s, "Success: %ld\n",stats->success);
-	seq_printf(s, "Len: %u\n",stats->len);
+	/*seq_printf(s, "Len: %u\n",stats->len);
 	seq_printf(s, "Size of structure: %u\n",stats->struct_size);
-	seq_printf(s, "Tmp: %hu\n",stats->tmp);
-	seq_printf(s, "Timestamp: %lld\n", stats->timestamp);
-	seq_printf(s, "Airtime 0: %u\n",msta->airtime_ac[0]);
+	seq_printf(s, "Tmp: %hu\n",stats->tmp);*/
+	seq_printf(s, "msec: %lld\n", msec);
+	seq_printf(s, "PPDU Count: %d\n", stats->ppdu_cnt);
+	/*seq_printf(s, "Airtime 0: %u\n",msta->airtime_ac[0]);
 	seq_printf(s, "Airtime 1: %u\n",msta->airtime_ac[1]);
 	seq_printf(s, "Airtime 2: %u\n",msta->airtime_ac[2]);
 	seq_printf(s, "Airtime 3: %u\n",msta->airtime_ac[3]);
@@ -1082,7 +1099,8 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	seq_printf(s, "Airtime 7: %u\n",msta->airtime_ac[7]);
 	seq_printf(s, "Current index: %ld\n",index);
 	seq_printf(s, "MAC address: %02X:%02X:%02X:%02X:%02X:%02X\n", 
-			   current_sta_addr[0], current_sta_addr[1], current_sta_addr[2], current_sta_addr[3], current_sta_addr[4], current_sta_addr[5]);
+			   current_sta_addr[0], current_sta_addr[1], current_sta_addr[2], current_sta_addr[3], current_sta_addr[4], current_sta_addr[5]);*/
+	seq_printf(s,"\n");
 	return 0;
 }
 
