@@ -13,6 +13,8 @@
 #define HE_PREP(f, m, v)	le16_encode_bits(le32_get_bits(v, MT_CRXV_HE_##m),\
 						 IEEE80211_RADIOTAP_HE_##f)
 
+bool len_initialized = false; // declare by Yao-Wen Liu for calculating the total transmission bytes
+
 static const struct mt7915_dfs_radar_spec etsi_radar_specs = {
 	.pulse_th = { 110, -10, -80, 40, 5200, 128, 5200 },
 	.radar_pattern = {
@@ -1117,6 +1119,11 @@ mt7915_tx_complete_status(struct mt76_dev *mdev, struct sk_buff *skb,
 
 		msta = (struct mt7915_sta *)sta->drv_priv;
 		status.rate = &msta->stats.tx_rate;
+		if(!len_initialized){
+			msta->len=0;
+			len_initialized = true;
+		}
+		msta->len += skb->len;
 	}
 
 #ifdef CONFIG_NL80211_TESTMODE

@@ -73,9 +73,6 @@ struct mt7915_sta_stats {
 	unsigned long success;
 	unsigned long changed;
 	unsigned long jiffies;
-	unsigned int len;
-	unsigned int struct_size;
-	unsigned short tmp;
 	s64 sec;
 	long nsec;
 	u8 ppdu_cnt;
@@ -101,6 +98,7 @@ struct mt7915_sta {
 	unsigned long ampdu_state;
 
 	struct mt7915_sta_key_conf bip;
+	unsigned long long int len;
 };
 
 struct mt7915_vif {

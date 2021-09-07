@@ -507,9 +507,6 @@ mt7915_mcu_tx_rate_report(struct mt7915_dev *dev, struct sk_buff *skb)
 		stats->per = 1000 * (attempts - success) / attempts;
 		stats->attempts = attempts;
 		stats->success = success;
-		stats->len = skb->len;
-		stats->struct_size = sizeof(struct mt7915_mcu_ra_info);
-		stats->tmp = tmp;
 		stats->sec = sec;
 		stats->nsec = nsec;
 		stats->ppdu_cnt = ra->ppdu_cnt;
