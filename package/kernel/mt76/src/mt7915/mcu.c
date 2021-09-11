@@ -503,7 +503,6 @@ mt7915_mcu_tx_rate_report(struct mt7915_dev *dev, struct sk_buff *skb)
 
 	if (attempts) {
 		u16 success = le16_to_cpu(ra->success);
-		u16 tmp = le16_to_cpu(ra->rxd.len);
 		stats->per = 1000 * (attempts - success) / attempts;
 		stats->attempts = attempts;
 		stats->success = success;
