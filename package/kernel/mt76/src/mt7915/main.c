@@ -16,7 +16,7 @@ struct station_table{
 	unsigned long attempt[10][2][2];
 	//unsigned long long pkt_len[10][2][2];
 	//unsigned long long interval[10][2][2];
-	unsigned long long int data_len=0;
+	unsigned long long int data_len;
 	bool initialized;
 };
 struct station_table stations[MAX_CLIENTS];
@@ -1003,7 +1003,7 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	unsigned long current_attempt;
 	unsigned long current_success;
 	unsigned long current_ppdu;
-	//unsigned long long msec;
+	unsigned long long msec;
 	//unsigned long long interval;
 	//unsigned long long current_pkt_len;
 	//unsigned long long current_interval;
