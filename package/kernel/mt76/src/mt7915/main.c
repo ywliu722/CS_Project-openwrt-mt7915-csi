@@ -14,8 +14,9 @@ struct station_table{
 	// [MCS][NSS][GI]
 	unsigned long success[10][2][2];
 	unsigned long attempt[10][2][2];
-	unsigned long long pkt_len[10][2][2];
-	unsigned long long interval[10][2][2];
+	//unsigned long long pkt_len[10][2][2];
+	//unsigned long long interval[10][2][2];
+	unsigned long long int data_len=0;
 	bool initialized;
 };
 struct station_table stations[MAX_CLIENTS];
@@ -23,8 +24,7 @@ u8 sta_addr[MAX_CLIENTS][ETH_ALEN];
 bool initialized = false;
 s64 previous_sec = 0;
 long previous_nsec = 0;
-unsigned long long previous_msec = 0;
-unsigned long long int data_len=0;
+//unsigned long long previous_msec = 0;
 
 static bool mt7915_dev_running(struct mt7915_dev *dev)
 {
@@ -1003,11 +1003,11 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	unsigned long current_attempt;
 	unsigned long current_success;
 	unsigned long current_ppdu;
-	unsigned long long msec;
-	unsigned long long interval;
-	unsigned long long current_pkt_len;
-	unsigned long long current_interval;
-	unsigned long long current_bitrate;
+	//unsigned long long msec;
+	//unsigned long long interval;
+	//unsigned long long current_pkt_len;
+	//unsigned long long current_interval;
+	//unsigned long long current_bitrate;
 
 	memcpy(current_sta_addr, sta->addr, ETH_ALEN);	// copy station MAC address
 
@@ -1024,7 +1024,7 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	if(previous_sec == 0 && previous_nsec == 0){
 		previous_sec = stats->sec-1;
 		previous_nsec = stats->nsec-1;
-		previous_msec = (previous_sec * 1000) + (previous_nsec / 1000000);
+		//previous_msec = (previous_sec * 1000) + (previous_nsec / 1000000);
 	}
 
 	// find station index or add it to the array
@@ -1034,8 +1034,9 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 				memcpy(sta_addr[index], sta->addr, ETH_ALEN);
 				memset(stations[index].attempt, 0, sizeof(stations[index].attempt));
 				memset(stations[index].success, 0, sizeof(stations[index].success));
-				memset(stations[index].pkt_len, 0, sizeof(stations[index].pkt_len));
-				memset(stations[index].interval, 0, sizeof(stations[index].interval));
+				//memset(stations[index].pkt_len, 0, sizeof(stations[index].pkt_len));
+				//memset(stations[index].interval, 0, sizeof(stations[index].interval));
+				stations[index].data_len = 0;
 				stations[index].initialized = true;
 			}
 			break;
@@ -1073,14 +1074,14 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 			seq_puts(s, "DCM ");
 	}
 
-	msec = (stats->sec * 1000) + (stats->nsec / 1000000);
-	interval = msec - previous_msec;
-	stations[index].pkt_len[rate->mcs][rate->nss][short_guard] = stations[index].pkt_len[rate->mcs][rate->nss][short_guard] + msta->len;
-	if(msta->len > 1000){
+	//msec = (stats->sec * 1000) + (stats->nsec / 1000000);
+	//interval = msec - previous_msec;
+	//stations[index].pkt_len[rate->mcs][rate->nss][short_guard] = stations[index].pkt_len[rate->mcs][rate->nss][short_guard] + msta->len;
+	/*if(msta->len > 1000){
 		stations[index].interval[rate->mcs][rate->nss][short_guard] = stations[index].interval[rate->mcs][rate->nss][short_guard] + interval;
-	}
-	msta->len = 0;
-	previous_msec = msec;
+	}*/
+	//msta->len = 0;
+	//previous_msec = msec;
 
 	// add current data to the table
 	if(previous_sec != stats->sec && previous_nsec != stats->nsec){
@@ -1095,13 +1096,13 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	current_success = stations[index].success[rate->mcs][rate->nss][short_guard];
 	current_ppdu = 1000 * (current_attempt - current_success) / current_attempt;
 
-	current_pkt_len = stations[index].pkt_len[rate->mcs][rate->nss][short_guard];
-	current_interval = stations[index].interval[rate->mcs][rate->nss][short_guard];
-	current_bitrate = (current_pkt_len * 8 ) / current_interval;
-	//msec = (stats->sec * 1000) + (stats->nsec / 1000000);
+	//current_pkt_len = stations[index].pkt_len[rate->mcs][rate->nss][short_guard];
+	//current_interval = stations[index].interval[rate->mcs][rate->nss][short_guard];
+	//current_bitrate = (current_pkt_len * 8 ) / current_interval;
+	msec = (stats->sec * 1000) + (stats->nsec / 1000000);
 	
-	//data_len += msta->len;
-	//msta->len = 0;
+	stations[index].data_len += msta->len;
+	msta->len = 0;
 	
 	seq_printf(s, "\nPPDU PER: %ld.%1ld%%\n", current_ppdu / 10, current_ppdu % 10);
 	seq_printf(s, "\nAccumulated Attempts: %ld",stations[index].attempt[rate->mcs][rate->nss][short_guard]);
@@ -1109,14 +1110,14 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 
 	seq_printf(s, "\nPPDU PER: %ld.%1ld%%\n",
 		   stats->per / 10, stats->per % 10);
-	seq_printf(s, "Attempts: %ld\n",stats->attempts);
-	seq_printf(s, "Success: %ld\n",stats->success);
-	//seq_printf(s, "msec: %llu\n", msec);
-	//seq_printf(s, "Len: %llu\n",data_len);
-	seq_printf(s, "PPDU Count: %d\n", stats->ppdu_cnt);
-	seq_printf(s, "Accumulated interval: %llu msec\n", current_interval);
-	seq_printf(s, "Accumulated Len: %llu Mbytes\n",current_pkt_len/1000000);
-	seq_printf(s, "Current Rate Average Bitrate: %llu MBits/s\n", current_bitrate/1000);
+	//seq_printf(s, "Attempts: %ld\n",stats->attempts);
+	//seq_printf(s, "Success: %ld\n",stats->success);
+	seq_printf(s, "msec: %llu\n", msec);
+	seq_printf(s, "Len: %llu\n",stations[index].data_len);
+	//seq_printf(s, "PPDU Count: %d\n", stats->ppdu_cnt);
+	//seq_printf(s, "Accumulated interval: %llu msec\n", current_interval);
+	//seq_printf(s, "Accumulated Len: %llu Mbytes\n",current_pkt_len/1000000);
+	//seq_printf(s, "Current Rate Average Bitrate: %llu MBits/s\n", current_bitrate/1000);
 	/*seq_printf(s, "Airtime 0: %u\n",msta->airtime_ac[0]);
 	seq_printf(s, "Airtime 1: %u\n",msta->airtime_ac[1]);
 	seq_printf(s, "Airtime 2: %u\n",msta->airtime_ac[2]);
