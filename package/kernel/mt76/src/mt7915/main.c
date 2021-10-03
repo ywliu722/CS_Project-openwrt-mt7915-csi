@@ -1118,7 +1118,7 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	//seq_printf(s, "Accumulated interval: %llu msec\n", current_interval);
 	//seq_printf(s, "Accumulated Len: %llu Mbytes\n",current_pkt_len/1000000);
 	//seq_printf(s, "Current Rate Average Bitrate: %llu MBits/s\n", current_bitrate/1000);
-	/*seq_printf(s, "Airtime 0: %u\n",msta->airtime_ac[0]);
+	seq_printf(s, "Airtime 0: %u\n",msta->airtime_ac[0]);
 	seq_printf(s, "Airtime 1: %u\n",msta->airtime_ac[1]);
 	seq_printf(s, "Airtime 2: %u\n",msta->airtime_ac[2]);
 	seq_printf(s, "Airtime 3: %u\n",msta->airtime_ac[3]);
@@ -1126,7 +1126,7 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	seq_printf(s, "Airtime 5: %u\n",msta->airtime_ac[5]);
 	seq_printf(s, "Airtime 6: %u\n",msta->airtime_ac[6]);
 	seq_printf(s, "Airtime 7: %u\n",msta->airtime_ac[7]);
-	seq_printf(s, "Current index: %ld\n",index);
+	/*seq_printf(s, "Current index: %ld\n",index);
 	seq_printf(s, "MAC address: %02X:%02X:%02X:%02X:%02X:%02X\n", 
 			   current_sta_addr[0], current_sta_addr[1], current_sta_addr[2], current_sta_addr[3], current_sta_addr[4], current_sta_addr[5]);*/
 	seq_printf(s,"\n");
