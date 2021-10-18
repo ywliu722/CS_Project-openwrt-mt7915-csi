@@ -1126,6 +1126,13 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	seq_printf(s, "Airtime 5: %u\n",msta->airtime_ac[5]);
 	seq_printf(s, "Airtime 6: %u\n",msta->airtime_ac[6]);
 	seq_printf(s, "Airtime 7: %u\n",msta->airtime_ac[7]);
+	seq_printf(s, "Send timestamp: %lld\n",msta->send_timestamp);
+	seq_printf(s, "Send timestamp ns: %ld\n",msta->send_timestamp_ns);
+	seq_printf(s, "Ack timestamp: %lld\n", msta->ack_timestamp);
+	seq_printf(s, "Ack timestamp ns: %ld\n", msta->ack_timestamp_ns);
+	seq_printf(s, "Send txtime: %llu\n", msta->send_txtime);
+	seq_printf(s, "Ack txtime: %llu\n", msta->ack_txtime);
+	seq_printf(s, "Tx: %llu\n", msta->tx);
 	/*seq_printf(s, "Current index: %ld\n",index);
 	seq_printf(s, "MAC address: %02X:%02X:%02X:%02X:%02X:%02X\n", 
 			   current_sta_addr[0], current_sta_addr[1], current_sta_addr[2], current_sta_addr[3], current_sta_addr[4], current_sta_addr[5]);*/

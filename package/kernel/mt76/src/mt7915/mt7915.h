@@ -99,6 +99,13 @@ struct mt7915_sta {
 
 	struct mt7915_sta_key_conf bip;
 	unsigned long long int len;
+	s64 send_timestamp;
+	s64 ack_timestamp;
+	long send_timestamp_ns;
+	long ack_timestamp_ns;
+	u64 send_txtime;
+	u64 ack_txtime;
+	u64 tx;
 };
 
 struct mt7915_vif {

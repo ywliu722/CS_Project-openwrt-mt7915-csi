@@ -476,9 +476,11 @@ mt7915_mcu_tx_rate_report(struct mt7915_dev *dev, struct sk_buff *skb)
 	struct mt76_wcid *wcid;
 
 	struct timespec64 tv;
+	s64 sec;
+	long nsec;
 	ktime_get_ts64(&tv);
-	s64 sec = tv.tv_sec;
-	long nsec = tv.tv_nsec;
+	sec = tv.tv_sec;
+	nsec = tv.tv_nsec;
 
 	if (wcidx >= MT76_N_WCIDS)
 		return;
