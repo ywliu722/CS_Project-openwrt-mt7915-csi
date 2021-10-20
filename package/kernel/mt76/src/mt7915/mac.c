@@ -1011,24 +1011,6 @@ int mt7915_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
 	struct mt7915_txp *txp;
 	int id, i, nbuf = tx_info->nbuf - 1;
 	u8 *txwi = (u8 *)txwi_ptr;
-
-	/*Written by Yao-Wen Liu*/
-	if(sta){
-		struct mt7915_sta *msta;
-		msta = (struct mt7915_sta *)sta->drv_priv;
-
-		struct timespec64 tv;
-		s64 sec;
-		long nsec;
-		ktime_get_ts64(&tv);
-
-		sec = tv.tv_sec;
-		nsec = tv.tv_nsec;
-
-		msta->send_timestamp = sec;
-		msta->send_timestamp_ns = nsec;
-		msta->send_txtime += info->status.tx_time;
-	}
 	
 	if (unlikely(tx_info->skb->len <= ETH_HLEN))
 		return -EINVAL;
@@ -1136,24 +1118,12 @@ mt7915_tx_complete_status(struct mt76_dev *mdev, struct sk_buff *skb,
 		struct mt7915_sta *msta;
 
 		msta = (struct mt7915_sta *)sta->drv_priv;
-
-		struct timespec64 tv;
-		s64 sec;
-		long nsec;
-
-		ktime_get_ts64(&tv);
-		sec = tv.tv_sec;
-		nsec = tv.tv_nsec;
-
 		status.rate = &msta->stats.tx_rate;
 		if(!len_initialized){
 			msta->len=0;
 			len_initialized = true;
 		}
 		msta->len += skb->len;
-		msta->ack_timestamp = sec;
-		msta->ack_timestamp_ns = nsec;
-		msta->ack_txtime += info->status.tx_time;
 		msta->tx += ((info->tx_time_est)<<2);
 	}
 
