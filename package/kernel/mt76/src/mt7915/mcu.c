@@ -2347,15 +2347,19 @@ int mt7915_mcu_set_fixed_rate(struct mt7915_dev *dev,
 	ra->phy.stbc = FIELD_GET(RATE_CFG_STBC, rate);
 
 	if (ra->phy.bw)
-		ra->phy.ldpc = 7;
+		//ra->phy.ldpc = 7;
+		ra->phy.ldpc = 1;
 	else
-		ra->phy.ldpc = FIELD_GET(RATE_CFG_LDPC, rate) * 7;
+		//ra->phy.ldpc = FIELD_GET(RATE_CFG_LDPC, rate) * 7;
+		ra->phy.ldpc = 1;
 
 	/* HT/VHT - SGI: 1, LGI: 0; HE - SGI: 0, MGI: 1, LGI: 2 */
 	if (ra->phy.type > MT_PHY_TYPE_VHT)
-		ra->phy.sgi = ra->phy.mcs * 85;
+		//ra->phy.sgi = ra->phy.mcs * 85;
+		ra->phy.sgi = 0;
 	else
-		ra->phy.sgi = ra->phy.mcs * 15;
+		//ra->phy.sgi = ra->phy.mcs * 15;
+		ra->phy.sgi = 0;
 
 out:
 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,

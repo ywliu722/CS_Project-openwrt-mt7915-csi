@@ -974,7 +974,7 @@ static void mt7915_sta_set_decap_offload(struct ieee80211_hw *hw,
 }
 
 static int mt7915_sta_fixed_rate_set(void *data, u64 rate)
-{
+{	
 	struct ieee80211_sta *sta = data;
 	struct mt7915_sta *msta = (struct mt7915_sta *)sta->drv_priv;
 
@@ -1004,6 +1004,7 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 	unsigned long current_success;
 	unsigned long current_ppdu;
 	unsigned long long msec;
+	u32 fixed_rate;
 	//unsigned long long interval;
 	//unsigned long long current_pkt_len;
 	//unsigned long long current_interval;
@@ -1018,6 +1019,13 @@ mt7915_sta_stats_read(struct seq_file *s, void *data)
 			stations[index].initialized = false;
 		}
 		initialized = true;
+		fixed_rate = 0;
+		fixed_rate = FIELD_PREP(RATE_CFG_MCS, 0) | 		// MCS
+					 FIELD_PREP(RATE_CFG_NSS, 1) | 		// NSS
+					 FIELD_PREP(RATE_CFG_BW, 2) | 		// BW
+					 FIELD_PREP(RATE_CFG_STBC, 1) | 	// STBC
+					 FIELD_PREP(RATE_CFG_PHY_TYPE, 4); 	// PHY_TYPE
+		mt7915_mcu_set_fixed_rate(msta->vif->phy->dev, sta, fixed_rate);
 	}
 
 	// check if this is the first report
