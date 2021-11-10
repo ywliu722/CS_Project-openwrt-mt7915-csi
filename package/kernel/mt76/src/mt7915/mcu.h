@@ -940,8 +940,14 @@ struct sta_rec_ra_fixed {
 	u8 mmps_mode;
 } __packed;
 
-#define RATE_PARAM_FIXED		3
-#define RATE_PARAM_AUTO			20
+enum {
+	RATE_PARAM_FIXED = 3,
+	RATE_PARAM_FIXED_HE_LTF = 7,
+	RATE_PARAM_FIXED_MCS,
+	RATE_PARAM_FIXED_GI = 11,
+	RATE_PARAM_AUTO = 20,
+};
+
 #define RATE_CFG_MCS			GENMASK(3, 0)
 #define RATE_CFG_NSS			GENMASK(7, 4)
 #define RATE_CFG_GI			GENMASK(11, 8)
@@ -949,6 +955,16 @@ struct sta_rec_ra_fixed {
 #define RATE_CFG_STBC			GENMASK(19, 16)
 #define RATE_CFG_LDPC			GENMASK(23, 20)
 #define RATE_CFG_PHY_TYPE		GENMASK(27, 24)
+#define RATE_CFG_HE_LTF			GENMASK(31, 28)
+/*#define RATE_PARAM_FIXED		3
+#define RATE_PARAM_AUTO			20
+#define RATE_CFG_MCS			GENMASK(3, 0)
+#define RATE_CFG_NSS			GENMASK(7, 4)
+#define RATE_CFG_GI			GENMASK(11, 8)
+#define RATE_CFG_BW			GENMASK(15, 12)
+#define RATE_CFG_STBC			GENMASK(19, 16)
+#define RATE_CFG_LDPC			GENMASK(23, 20)
+#define RATE_CFG_PHY_TYPE		GENMASK(27, 24)*/
 
 struct sta_rec_bf {
 	__le16 tag;
